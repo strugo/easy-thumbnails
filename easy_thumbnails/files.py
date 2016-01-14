@@ -1,4 +1,6 @@
 import os
+
+from PIL.GifImagePlugin import GifImageFile
 from django.utils import six
 
 from django.core.files.base import File, ContentFile
@@ -387,8 +389,23 @@ class Thumbnailer(File):
             raise exceptions.InvalidImageFormatError(
                 "The source file does not appear to be an image")
 
-        thumbnail_image = engine.process_image(image, thumbnail_options,
+        thumbnail_image = None
+        IS_GIF = False
+        if isinstance(image, GifImageFile):
+            IS_GIF = True
+            import images2gif
+            gif_image, gif_params = images2gif.readGif(image, False)
+            frames = []
+            for frame in gif_image:
+                thumbnail_frame = engine.process_image(frame, thumbnail_options,
+                                                       self.thumbnail_processors)
+                frames.append(thumbnail_frame)
+                if thumbnail_image is None:
+                    thumbnail_image = frame
+        else:
+            thumbnail_image = engine.process_image(image, thumbnail_options,
                                                self.thumbnail_processors)
+
         if high_resolution:
             thumbnail_options['size'] = orig_size  # restore original size
 
@@ -399,9 +416,19 @@ class Thumbnailer(File):
         quality = thumbnail_options['quality']
         subsampling = thumbnail_options['subsampling']
 
-        img = engine.save_image(
-            thumbnail_image, filename=filename, quality=quality,
-            subsampling=subsampling)
+        if IS_GIF:
+            try:
+                # try save with speedup
+                img = images2gif.writeGif(frames, **gif_params)
+                saved = True
+            except:
+                # if not saved, simple save
+                gif_params.update({'subRectangles': False,})
+                img = images2gif.writeGif(frames, **gif_params)
+        else:
+            img = engine.save_image(
+                thumbnail_image, filename=filename, quality=quality,
+                subsampling=subsampling)
         data = img.read()
 
         thumbnail = ThumbnailFile(
