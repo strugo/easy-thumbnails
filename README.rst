@@ -2,12 +2,12 @@
 Easy Thumbnails
 ===============
 
-.. image:: https://secure.travis-ci.org/SmileyChris/easy-thumbnails.png?branch=master
+.. image:: https://secure.travis-ci.org/SmileyChris/easy-thumbnails.svg?branch=master
     :alt: Build Status
     :target: http://travis-ci.org/SmileyChris/easy-thumbnails
 
 
-A powerful, yet easy to implement thumbnailing application for Django 1.4+
+A powerful, yet easy to implement thumbnailing application for Django 1.8+
 
 Below is a quick summary of usage. For more comprehensive information, view the
 `full documentation`__ online or the peruse the project's ``docs`` directory.
@@ -27,8 +27,7 @@ Add ``easy_thumbnails`` to your ``INSTALLED_APPS`` setting::
         'easy_thumbnails',
     )
 
-If you have South installed then run ``manage.py migrate easy_thumbnails``,
-otherwise just run ``manage.py syncdb``.
+Run ``manage.py migrate easy_thumbnails``.
 
 
 Example usage
@@ -72,11 +71,21 @@ Python::
     options = {'size': (100, 100), 'crop': True}
     thumb_url = get_thumbnailer(profile.photo).get_thumbnail(options).url
 
+Using in combination with other thumbnailers
+--------------------------------------------
+
+Alternatively, you load the templatetags by {% load easy_thumbnails_tags %} 
+instead of traditional {% load thumbnail %}. It's especially useful in 
+projects that do make use of multiple thumbnailer libraries that use the 
+same name (`thumbnail`) for the templatetag module::
+
+    {% load easy_thumbnails_tags %}
+    <img src="{% thumbnail profile.photo 50x50 crop %}" alt="" />
 
 Fields
 ======
 
-You can use ``ThumbnailerImageField`` (or ``ThumbnailerFileField``) for easier
+You can use ``ThumbnailerImageField`` (or ``ThumbnailerField``) for easier
 access to retrieve or generate thumbnail images.
 
 For example::

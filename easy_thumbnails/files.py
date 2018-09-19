@@ -707,7 +707,7 @@ class ThumbnailerFieldFile(FieldFile, Thumbnailer):
         # Next, delete the source image.
         super(ThumbnailerFieldFile, self).delete(*args, **kwargs)
         # Finally, delete the source cache entry.
-        if source_cache:
+        if source_cache and source_cache.pk is not None:
             source_cache.delete()
 
     delete.alters_data = True
@@ -752,6 +752,19 @@ class ThumbnailerFieldFile(FieldFile, Thumbnailer):
                 if thumbnail_cache.storage_hash == thumbnail_storage_hash:
                     yield ThumbnailFile(name=thumbnail_cache.name,
                                         storage=self.thumbnail_storage)
+
+    def __getstate__(self):
+        state = super(ThumbnailerFieldFile, self).__getstate__()
+        state.update({
+            k: v
+            for k, v in self.__dict__.items()
+            if k.startswith('thumbnail') or k in ['generate', 'remote_source', 'source_storage']
+        })
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self.__dict__['alias_target'] = self
 
 
 class ThumbnailerImageFieldFile(ImageFieldFile, ThumbnailerFieldFile):

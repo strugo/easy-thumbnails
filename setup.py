@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 import codecs
 import os
+import sys
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
@@ -49,22 +50,29 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        'django>=1.4.2',
-        'pillow',
+        'django>=1.8,<2;python_version<"3"',
+        'django>=1.8;python_version>="3"',
+        'pillow<4;python_version<"2.7"',
+        'pillow;python_version>="2.7"',
     ],
     cmdclass={'test': DjangoTests},
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Framework :: Django',
+        'Framework :: Django :: 1.8',
+        'Framework :: Django :: 1.9',
+        'Framework :: Django :: 1.10',
+        'Framework :: Django :: 1.11',
+        'Framework :: Django :: 2.0',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],

@@ -1,6 +1,5 @@
 from django.core.files import storage as django_storage
 from django.db.models import FileField
-from django.db.models.query_utils import deferred_class_factory
 from django.db.models.signals import post_save, pre_save
 
 from easy_thumbnails import files, signal_handlers, signals, storage
@@ -11,10 +10,7 @@ try:
     from django.db.models import loading
 except ImportError:  # Removed in Django 1.9
     loading = None
-try:
-    from django.utils import unittest
-except ImportError:  # Django 1.7+ no longer needs custom unittest module.
-    import unittest
+import unittest
 
 
 class BaseTest(utils.BaseTest):
@@ -164,6 +160,7 @@ class AliasTest(BaseTest):
 
     @unittest.skipUnless(loading, 'Only needed in Django <1.9')
     def test_deferred(self):
+        from django.db.models.query_utils import deferred_class_factory
         loading.cache.loaded = False
         deferred_profile = deferred_class_factory(models.Profile, ('logo',))
         instance = deferred_profile(avatar='avatars/test.jpg')
@@ -266,6 +263,24 @@ class GenerationTest(GenerationBase):
         profile.avatar.delete(save=False)
         files = self.fake_save(profile)
         self.assertEqual(len(files), 0)
+
+    def test_clearable(self):
+        """
+        A ClearablFileInput will set field value to False before pre_save
+        """
+        profile = models.Profile(avatar='avatars/test.jpg')
+        cls = profile.__class__
+
+        profile.avatar = False
+        pre_save.send(sender=cls, instance=profile)
+
+        # Saving will then properly clear
+        profile.avatar = ''
+        post_save.send(sender=cls, instance=profile)
+
+        # FileField is cleared, but not explicitly deleted, file remains
+        files = self.storage.listdir('avatars')[1]
+        self.assertEqual(len(files), 1)
 
     def test_standard_filefield(self):
         profile = models.Profile(avatar='avatars/test.jpg')

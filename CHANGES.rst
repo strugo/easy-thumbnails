@@ -1,6 +1,52 @@
 Changes
 =======
 
+2.5.0 (2017-10-31)
+------------------
+
+* Support Django versions up to 1.11. Version 2.0 is in beta.
+
+* Fix: Pickle/unpickle machine. The ThumbnailerField fields no longer
+  generated thumbnails.
+
+* Removed all references to South migrations.
+
+
+2.4.2 (2017-09-14)
+------------------
+
+* Supported Django versions are now 1.8 or 1.10+, Python 2.7 minimum.
+
+* Fix IOError saving JPEG files with transparency on Pillow 4.2+.
+
+* Fix #450, #473: fixed int/string is not a callable in management command.
+
+* Fix #456: Delete method of ThumbnailerFieldFile is called twice.
+
+
+2.4.1 (2017-04-05)
+------------------
+
+* New minimum requirement of Django 1.4 or 1.7+.
+
+* Fix EXIF orientation to use transpose.
+
+* Upgrades to avoid deprecation warnings.
+
+* Fix app settings not working in Django 1.11.
+
+* Fix a bad conditional check causing incorrect behaviour in autocropping
+  transparent images.
+
+* Django 1.8+ compatibility for ``thumbnail_cleanup`` command.
+
+* Add ``easy_thumbnails_tags`` template tag mirror to allow multiple
+  thumbnailer libraries to coexist happily.
+
+* Limit pillow to its final compatible version when on Python 2.6
+
+* Fix tests.
+
 2.3 (2015-12-11)
 ----------------
 

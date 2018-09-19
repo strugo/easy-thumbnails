@@ -49,11 +49,11 @@ def valid_processor_options(processors=None):
     if processors is None:
         processors = [
             dynamic_import(p) for p in
-            settings.THUMBNAIL_PROCESSORS +
-            settings.THUMBNAIL_SOURCE_GENERATORS]
+            tuple(settings.THUMBNAIL_PROCESSORS) +
+            tuple(settings.THUMBNAIL_SOURCE_GENERATORS)]
     valid_options = set(['size', 'quality', 'subsampling'])
     for processor in processors:
-        args = inspect.getargspec(processor)[0]
+        args = inspect.getfullargspec(processor)[0] if six.PY3 else inspect.getargspec(processor)[0]
         # Add all arguments apart from the first (the source image).
         valid_options.update(args[1:])
     return list(valid_options)
@@ -143,7 +143,11 @@ def get_modified_time(storage, name):
     datetime.
     """
     try:
-        modified_time = storage.modified_time(name)
+        try:
+            # Prefer Django 1.10 API and fall back to old one
+            modified_time = storage.get_modified_time(name)
+        except AttributeError:
+            modified_time = storage.modified_time(name)
     except OSError:
         return 0
     except NotImplementedError:

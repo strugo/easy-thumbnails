@@ -1,8 +1,8 @@
 from django.conf import settings as django_settings
-try:
-    from django.conf import BaseSettings
-except ImportError:  # Django <= 1.2
-    from django.conf import Settings as BaseSettings
+
+
+class BaseSettings(object):
+    pass
 
 
 class AppSettings(BaseSettings):
@@ -18,7 +18,6 @@ class AppSettings(BaseSettings):
         self.isolated = isolated
         self._changed = {}
         self._added = []
-        super(AppSettings, self).__init__(*args, **kwargs)
 
     def get_isolated(self):
         return self._isolated
