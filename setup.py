@@ -50,10 +50,8 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        'django>=1.8,<2;python_version<"3"',
-        'django>=1.8;python_version>="3"',
-        'pillow<4;python_version<"2.7"',
-        'pillow;python_version>="2.7"',
+        'django>=1.8',
+        'pillow<4',
     ],
     cmdclass={'test': DjangoTests},
     classifiers=[
